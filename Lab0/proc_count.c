@@ -16,7 +16,7 @@ static int proc_count(struct seq_file *m, void *v) {
 
 	// seq_printf(m, "%d \n", numProcess);
 
-	seq_printf(m, "WO MEN ZOU BA");
+	seq_printf(m, "THRU THE BREACH");
 
 	return 0;
 }
