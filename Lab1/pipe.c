@@ -3,5 +3,7 @@ int main(int argc, char *argv[]) {
         printf("argument %d is %s\n", i, argv[i]);
     }
 
+    execlp("ls", "ls", "-l", NULL);
+
     return 0;
 }
