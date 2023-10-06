@@ -1,4 +1,7 @@
 int main(int argc, char *argv[]) {
-    printf("I will eat eggert's ass \n");
+    for (int i = 0; i < argc; i++) {
+        printf("argument %d is %s\n", i, argv[i]);
+    }
+
     return 0;
 }
