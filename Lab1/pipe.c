@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
         printf("argument %d is %s\n", i, argv[i]);
     }
 
-    execlp("ls", "ls", "-l", NULL);
+    execlp("ls", "ls", NULL);
 
     return 0;
 }
