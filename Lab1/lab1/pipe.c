@@ -9,7 +9,15 @@ int main(int argc, char *argv[]) {
         printf("argument %d is %s\n", i, argv[i]);
     }
 
-    execlp("ls", "ls", NULL);
+    execlp("ls", "ls", NULL); //lists out all files in ls' executable path
+
+	int returnCode = system(argv[0]);
+
+	if (returnCode == 0) {
+		pritnf("Command executed successfully.\n");
+	} else {
+		printf("Command failed w/ return code %d.\n", returnCode);
+	}
 
     return 0;
 }
