@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
 		printf("Command failed w/ return code %d.\n", returnCode);
 	}
 
-	printf("All files in executable path: ");
-	execlp("ls", "ls", NULL); //lists out all files in ls' executable path
+	// printf("All files in executable path: ");
+	// execlp("ls", "ls", NULL); //lists out all files in ls' executable path
 
     return 0;
 }
