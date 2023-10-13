@@ -9,8 +9,6 @@ int main(int argc, char *argv[]) {
         printf("argument %d is %s\n", i, argv[i]);
     }
 
-    execlp("ls", "ls", NULL); //lists out all files in ls' executable path
-
 	int returnCode = system(argv[0]);
 
 	if (returnCode == 0) {
@@ -18,6 +16,9 @@ int main(int argc, char *argv[]) {
 	} else {
 		printf("Command failed w/ return code %d.\n", returnCode);
 	}
+
+	printf("All files in executable path: ");
+	execlp("ls", "ls", NULL); //lists out all files in ls' executable path
 
     return 0;
 }
