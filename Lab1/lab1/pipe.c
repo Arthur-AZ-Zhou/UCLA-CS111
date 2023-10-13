@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 	int returnCode = system(argv[0]);
 
 	if (returnCode == 0) {
-		pritnf("Command executed successfully.\n");
+		printf("Command executed successfully.\n");
 	} else {
 		printf("Command failed w/ return code %d.\n", returnCode);
 	}
