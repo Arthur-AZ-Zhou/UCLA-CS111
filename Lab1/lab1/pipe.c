@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	int i;
 
 	for (i = 1; i < argc - 1; i++) {
-		int fd[2];
+		int pd[2];
 		pipe(pd);
 
 		if (!fork()) {
