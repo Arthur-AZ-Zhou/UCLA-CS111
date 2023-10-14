@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
 	for (i = 1; i < argc - 1; i++) {
 		int fd[2];
-		pipe(fd);
+		pipe(pd);
 
 		if (!fork()) {
 			dup2(pd[1], 1); //link stdout to parent
