@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 
-		int status
+		int status;
 
 		waitpid(childpid, &status, 0);
 		dup2(fds[0], 0); //link stdout of previous child to stdin
