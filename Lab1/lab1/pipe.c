@@ -9,13 +9,37 @@ int main(int argc, char *argv[]) {
     //     printf("argument %d is %s\n", i, argv[i]);
     // }
 
+	int i;
+
+	for (i = 1; i < argc - 1; i++) {
+		int fds[2];
+		pid_t childpid;
+
+		childpid = fork();
+
+		if (childpid == 0) {
+			dup2(fds[1], 1); //link stdout to parent
+			execlp(argv[i], argv[i], NULL);
+			perror("execlp");
+			return 1;
+		}
+
+		int status
+
+		waitpid(childpid, &status, 0);
+		dup2(fds[0], 0); //link stdout of previous child to stdin
+		close(fds[1]);
+	}
+
+	execlp(argv[i], argv[i], NULL);
+	perror("exec");
+	abort();
+
 	// int i;
 
 	// for (i = 1; i < argc - 1; i++) {
 	// 	int fds[2];
-	// 	pid_t child;
-
-	// 	child = fork();
+	// 	pipe(fds);
 
 	// 	if (!fork()) {
 	// 		dup2(fds[1], 1); //link stdout to parent
@@ -31,27 +55,6 @@ int main(int argc, char *argv[]) {
 	// execlp(argv[i], argv[i], NULL);
 	// perror("exec");
 	// abort();
-
-	int i;
-
-	for (i = 1; i < argc - 1; i++) {
-		int fds[2];
-		pipe(fds);
-
-		if (!fork()) {
-			dup2(fds[1], 1); //link stdout to parent
-			execlp(argv[i], argv[i], NULL);
-			perror("exec");
-			abort();
-		}
-
-		dup2(fds[0], 0); //link stdout of previous child to stdin
-		close(fds[1]);
-	}
-
-	execlp(argv[i], argv[i], NULL);
-	perror("exec");
-	abort();
 
 	// int returnCode = system(argv[1]);
 
