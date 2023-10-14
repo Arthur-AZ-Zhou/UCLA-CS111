@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 
 	for (i = 1; i < argc - 1; i++) {
 		int fds[2];
+		pipe(fds);
 		pid_t childpid;
 
 		childpid = fork();
