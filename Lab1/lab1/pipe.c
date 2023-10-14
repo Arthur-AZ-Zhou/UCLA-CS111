@@ -9,15 +9,36 @@ int main(int argc, char *argv[]) {
     //     printf("argument %d is %s\n", i, argv[i]);
     // }
 
+	// int i;
+
+	// for (i = 1; i < argc - 1; i++) {
+	// 	int fds[2];
+	// 	pid_t child;
+
+	// 	child = fork();
+
+	// 	if (!fork()) {
+	// 		dup2(fds[1], 1); //link stdout to parent
+	// 		execlp(argv[i], argv[i], NULL);
+	// 		perror("exec");
+	// 		abort();
+	// 	}
+
+	// 	dup2(fds[0], 0); //link stdout of previous child to stdin
+	// 	close(fds[1]);
+	// }
+
+	// execlp(argv[i], argv[i], NULL);
+	// perror("exec");
+	// abort();
+
 	int i;
 
 	for (i = 1; i < argc - 1; i++) {
 		int fds[2];
 		pipe(fds);
 
-		int child = fork();
-
-		if (fork() != 0) {
+		if (!fork()) {
 			dup2(fds[1], 1); //link stdout to parent
 			execlp(argv[i], argv[i], NULL);
 			perror("exec");
@@ -26,7 +47,6 @@ int main(int argc, char *argv[]) {
 
 		dup2(fds[0], 0); //link stdout of previous child to stdin
 		close(fds[1]);
-		exit(1);
 	}
 
 	execlp(argv[i], argv[i], NULL);
