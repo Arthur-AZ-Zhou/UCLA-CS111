@@ -12,18 +12,18 @@ int main(int argc, char *argv[]) {
 	int i;
 
 	for (i = 1; i < argc - 1; i++) {
-		int pd[2];
-		pipe(pd);
+		int fd[2];
+		pipe(fd);
 
 		if (!fork()) {
-			dup2(pd[1], 1); //link stdout to parent
+			dup2(fd[1], 1); //link stdout to parent
 			execlp(argv[i], argv[i], NULL);
 			perror("exec");
 			abort();
 		}
 
-		dup2(pd[0], 0);
-		close(pd[1]);
+		dup2(fd[0], 0);
+		close(fd[1]);
 	}
 
 	execlp(argv[i], argv[i], NULL);
