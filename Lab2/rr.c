@@ -156,19 +156,42 @@ int main (int argc, char *argv[]) {
     long total_response_time = 0;
 
     /* Your code here */
-    long current_time = 0;
-    long completed_processes = 0;
+    struct process *first = &ps.process[0];
+    struct process *current_process = first;
+    int current_time = first->arrival_time;
+    int current_index = 1;
 
-    while (completed_processes < ps.nprocesses) {
-        // for (int i = 0; i < ps.nprocesses; i++) {
-        //     if () {
-        //         TAILQ_INSERT_TAIL(&list, )
-        //     }
-        // }
+    TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
-        if (TAILQ_EMPTY(&list)) {
-            current_time++;
-            continue;
+    while (!TAILQ_EMPTY(&list)) {
+        current_process = TAILQ_FIRST(&list);
+        printf("Process %ld executes at: %d \n", current_process->pid, current_time);
+
+        if (current_process->start_execution_time == 0) { //first process
+            current_process->start_execution_time = current_time;
+            current_process->remaining_time = current_process->burst_time;
+            current_process->response_time = time - current_process->arrival_time;
+            total_response_time += current_process->response_time;
+            printf("Current total_response_time: %d \n", total_response_time);
+        }
+
+        int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
+        int after_runtime = time + runtime;
+
+        while (current_index < ps.nprocesses && ps.process[current_index].arrival_time <= after_runtime) { //add new processes to end of list
+            TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers); 
+            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
+            current_index++;
+        }
+
+        current_process->remaining_time -= runtime;
+        TAILQ_REMOVE(&list, current_process, pointers);
+        current_time += runtime;
+
+        if (current_process->remaining_time > 0) { //add process to end if they have time left
+            TAILQ_INSERT_TAIL(&list, current_process, pointers);
+        } else {
+            total_wait_time += (time - current_process->burst_time - current_process->arrival_time);
         }
     }
 
