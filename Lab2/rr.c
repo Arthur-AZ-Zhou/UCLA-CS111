@@ -170,13 +170,13 @@ int main (int argc, char *argv[]) {
         if (current_process->start_execution_time == 0) { //first process
             current_process->start_execution_time = current_time;
             current_process->remaining_time = current_process->burst_time;
-            current_process->response_time = time - current_process->arrival_time;
+            current_process->response_time = current_time - current_process->arrival_time;
             total_response_time += current_process->response_time;
             printf("Current total_response_time: %d \n", total_response_time);
         }
 
         int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
-        int after_runtime = time + runtime;
+        int after_runtime = current_time + runtime;
 
         while (current_index < ps.nprocesses && ps.process[current_index].arrival_time <= after_runtime) { //add new processes to end of list
             TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers); 
