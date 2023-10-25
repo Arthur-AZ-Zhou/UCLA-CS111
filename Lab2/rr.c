@@ -191,7 +191,7 @@ int main (int argc, char *argv[]) {
         if (current_process->remaining_time > 0) { //add process to end if they have time left
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
         } else {
-            printf("Process %ld wait_time: %ld \n", current_process->pid, time - current_process->arrival_time - current_process->burst_time);
+            printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
         }
     }
