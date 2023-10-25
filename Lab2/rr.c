@@ -189,19 +189,19 @@ int main (int argc, char *argv[]) {
             } else { //sort array and find middle
                 qsort(runtime_array, num_processes_ran, sizeof(long), compare); 
                 quantum_length = runtime_array[num_processes_ran / 2];
-                printf("Quantum length: %ld \n", quantum_length);
+                // printf("Quantum length: %ld \n", quantum_length);
             }
         }
 
         current_process = TAILQ_FIRST(&list);
-        printf("Process %ld executes at: %d \n", current_process->pid, current_time);
+        // printf("Process %ld executes at: %d \n", current_process->pid, current_time);
 
         if (current_process->start_execution_time == 0) { //first process
             current_process->start_execution_time = current_time;
             current_process->remaining_time = current_process->burst_time;
             current_process->response_time = current_time - current_process->arrival_time;
             total_response_time += current_time - current_process->arrival_time;
-            printf("Current total_response_time: %ld \n", total_response_time);
+            // printf("Current total_response_time: %ld \n", total_response_time);
         }
 
         int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
@@ -209,7 +209,7 @@ int main (int argc, char *argv[]) {
 
         while (current_index < ps.nprocesses && ps.process[current_index].arrival_time <= after_runtime) { //add new processes to end of list
             TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers); 
-            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
+            // printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
             current_index++;
         }
 
@@ -222,17 +222,17 @@ int main (int argc, char *argv[]) {
         if (current_process->remaining_time > 0) { //add process to end if they have time left
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
         } else { //otherwise get total wait time - context switch
-            printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
+            // printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time - 1); //MINUS CONTEXT SWITCH
         }
     }
 
-    for (long i = 0; i < ps.nprocesses; i++) {
-        printf("PID: %ld ", ps.process[i].pid);
-        printf("Arrival Time: %ld ", ps.process[i].arrival_time);
-        printf("Burst Time: %ld ", ps.process[i].burst_time);
-        printf("\n");
-    }
+    // for (long i = 0; i < ps.nprocesses; i++) {
+    //     printf("PID: %ld ", ps.process[i].pid);
+    //     printf("Arrival Time: %ld ", ps.process[i].arrival_time);
+    //     printf("Burst Time: %ld ", ps.process[i].burst_time);
+    //     printf("\n");
+    // }
 
     /* End of "Your code here" */
 
