@@ -172,7 +172,7 @@ int main (int argc, char *argv[]) {
             current_process->remaining_time = current_process->burst_time;
             current_process->response_time = current_time - current_process->arrival_time;
             total_response_time += current_process->response_time;
-            printf("Current total_response_time: %d \n", total_response_time);
+            printf("Current total_response_time: %ld \n", total_response_time);
         }
 
         int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
