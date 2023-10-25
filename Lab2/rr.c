@@ -171,7 +171,7 @@ int main (int argc, char *argv[]) {
             current_process->start_execution_time = current_time;
             current_process->remaining_time = current_process->burst_time;
             current_process->response_time = current_time - current_process->arrival_time;
-            total_response_time += current_process->response_time;
+            total_response_time += current_process->response_time + 1;
             printf("Current total_response_time: %ld \n", total_response_time);
         }
 
@@ -194,6 +194,8 @@ int main (int argc, char *argv[]) {
             printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
         }
+
+        total_wait_time++;
     }
 
     for (long i = 0; i < ps.nprocesses; i++) {
