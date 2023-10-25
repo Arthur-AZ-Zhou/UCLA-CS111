@@ -136,6 +136,18 @@ static struct process_set init_processes (char const *filename) {
     return (struct process_set) {nprocesses, process};
 }
 
+int compare(const void * e1, const void * e2) { //sort array compare function
+    long f = *((long*) e1);
+    long s = *((long*) e2);
+
+    if (f > s) 
+        return  1;
+    if (f < s) 
+        return -1;
+
+    return 0;
+}
+
 int main (int argc, char *argv[]) {
     if (argc != 3) {
         fprintf (stderr, "%s: usage: %s file quantum\n", argv[0], argv[0]);
@@ -160,10 +172,27 @@ int main (int argc, char *argv[]) {
     struct process *current_process = first;
     int current_time = first->arrival_time;
     int current_index = 1;
+    int num_processes_ran = 0;
+
+    bool quantum_dynamic = false;
+    long* runtime_array = (long*) malloc(10000 * sizeof(long));
+
+    if (quantum_length == -1) 
+        quantum_dynamic = true;
 
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
     while (!TAILQ_EMPTY(&list)) {
+        if (quantum_dynamic == true) {
+            if (quantum_length <= 0) {
+                quantum_length = 1;
+            } else { //sort array and find middle
+                qsort(runtime_array, num_processes_ran, sizeof(long), compare); 
+                quantum_length = runtime_array[num_processes_ran / 2];
+                printf("Quantum length: %ld \n", quantum_length);
+            }
+        }
+
         current_process = TAILQ_FIRST(&list);
         printf("Process %ld executes at: %d \n", current_process->pid, current_time);
 
@@ -171,12 +200,12 @@ int main (int argc, char *argv[]) {
             current_process->start_execution_time = current_time;
             current_process->remaining_time = current_process->burst_time;
             current_process->response_time = current_time - current_process->arrival_time;
-            total_response_time += current_process->response_time;
+            total_response_time += current_time - current_process->arrival_time;
             printf("Current total_response_time: %ld \n", total_response_time);
         }
 
         int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
-        int after_runtime = current_time + runtime;
+        int after_runtime = current_time + runtime + 1; //CONTEXT SWITCH
 
         while (current_index < ps.nprocesses && ps.process[current_index].arrival_time <= after_runtime) { //add new processes to end of list
             TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers); 
@@ -185,14 +214,16 @@ int main (int argc, char *argv[]) {
         }
 
         current_process->remaining_time -= runtime;
+        num_processes_ran++;
+        runtime_array[num_processes_ran] = current_process->burst_time - current_process->remaining_time;
         TAILQ_REMOVE(&list, current_process, pointers);
-        current_time += runtime;
+        current_time += runtime + 1; //CONTEXT SWITCH
 
         if (current_process->remaining_time > 0) { //add process to end if they have time left
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
-        } else {
+        } else { //otherwise get total wait time - context switch
             printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
-            total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
+            total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time - 1); //MINUS CONTEXT SWITCH
         }
     }
 
