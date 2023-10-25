@@ -17,8 +17,12 @@ struct process {
 
     TAILQ_ENTRY (process) pointers;
 
-  /* Additional fields here */
-  /* End of "Additional fields here" */
+    /* Additional fields here */
+    long wait_time;
+    long response_time;
+    long remaining_time;
+    long start_execution_time;
+    /* End of "Additional fields here" */
 };
 
 TAILQ_HEAD (process_list, process);
@@ -152,6 +156,21 @@ int main (int argc, char *argv[]) {
     long total_response_time = 0;
 
     /* Your code here */
+    long current_time = 0;
+    long completed_processes = 0;
+
+    while (completed_processes < ps.nprocesses) {
+        // for (int i = 0; i < ps.nprocesses; i++) {
+        //     if () {
+        //         TAILQ_INSERT_TAIL(&list, )
+        //     }
+        // }
+
+        if (TAILQ_EMPTY(&list)) {
+            current_time++;
+            continue;
+        }
+    }
 
     /* End of "Your code here" */
 
