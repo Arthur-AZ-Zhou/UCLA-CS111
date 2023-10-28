@@ -187,6 +187,9 @@ int main (int argc, char *argv[]) {
     int num_processes_done = 0;
     int current_index = 1;
     bool quantum_dynamic = ((quantum_length == -1)? true : false);
+    if (quantum_dynamic) {
+        printf("WE HAVE DYNAMIC QUANTUM!!!\n");
+    }
     qsort(ps.process, ps.nprocesses, sizeof(struct process), compare_arrival_time); 
 
     struct process *first = &ps.process[0];
@@ -196,7 +199,7 @@ int main (int argc, char *argv[]) {
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
     while (num_processes_done != ps.nprocesses) {
-        /*if (quantum_dynamic == true) { //HAVEN'T TESTED
+        if (quantum_dynamic == true) { //HAVEN'T TESTED
             if (quantum_length <= 0) {
                 quantum_length = 1;
             } else { //sort array and find middle
@@ -237,7 +240,7 @@ int main (int argc, char *argv[]) {
                 active_processes_runtime = temp_array;
                 // printf("quantum_length/median: %ld\n", quantum_length);
             }
-        } */
+        } 
 
         struct process *current_process = TAILQ_FIRST(&list);
         printf("Process %ld executes at: %d \n", current_process->pid, current_time);
