@@ -292,7 +292,7 @@ int main (int argc, char *argv[]) {
         if (TAILQ_FIRST(&list) != current_process) 
             current_time++;
         
-        printf(">>>current_time<<< %d", current_time);
+        printf(">>>current_time<<< %d\n", current_time);
     }
 
     // for (long i = 0; i < ps.nprocesses; i++) {
