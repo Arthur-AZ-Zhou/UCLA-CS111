@@ -19,7 +19,7 @@ struct process {
 
     /* Additional fields here */
     int ID; //no guarantee PID is in chronological order or won't overflow array
-    bool started;
+    bool started; //false by default
     long wait_time;
     long response_time;
     long remaining_time;
@@ -182,33 +182,33 @@ int main (int argc, char *argv[]) {
     long total_response_time = 0;
 
     /* Your code here */
+    int num_processes_active = 0;
     int num_processes_ran = 0;
     int current_index = 1;
     bool quantum_dynamic = ((quantum_length == -1)? true : false);
     qsort(ps.process, ps.nprocesses, sizeof(struct process), compare_arrival_time); 
 
     struct process *first = &ps.process[0];
-    struct process *current_process = first;
     int current_time = first->arrival_time;
     long* active_processes_runtime = (long*) malloc(ps.nprocesses * sizeof(long)); //array of active processes to sort
 
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
-    while (!TAILQ_EMPTY(&list)) {
-        if (quantum_dynamic == true) { //HAVEN'T TESTED
+    while (num_processes_ran < ps.nprocesses) {
+        /*if (quantum_dynamic == true) { //HAVEN'T TESTED
             if (quantum_length <= 0) {
                 quantum_length = 1;
             } else { //sort array and find middle
                 long* temp_array = (long*) malloc(ps.nprocesses * sizeof(long)); //save original array
-                for (int i = 0; i < num_processes_ran; i++) //copy original array
+                for (int i = 0; i < num_processes_active; i++) //copy original array
                     temp_array[i] = active_processes_runtime[i];
                 
-                qsort(active_processes_runtime, num_processes_ran, sizeof(long), compare); 
+                qsort(active_processes_runtime, num_processes_active, sizeof(long), compare); 
                 int median = 0; //placeholder
                 
-                if (num_processes_ran % 2 == 0) { //cancer scenario
-                    if (num_processes_ran != 0) {
-                        int second_half_index = num_processes_ran / 2;
+                if (num_processes_active % 2 == 0) { //cancer scenario
+                    if (num_processes_active != 0) {
+                        int second_half_index = num_processes_active / 2;
                         int first_half_index = second_half_index - 1;
                         double decimal_median = ((double) (active_processes_runtime[first_half_index] + active_processes_runtime[second_half_index])) / 2;
 
@@ -226,7 +226,7 @@ int main (int argc, char *argv[]) {
                         }
                     }
                 } else { //odd # of processes
-                    median = active_processes_runtime[num_processes_ran / 2];
+                    median = active_processes_runtime[num_processes_active / 2];
                 }
 
                 if (median == 0)
@@ -234,42 +234,60 @@ int main (int argc, char *argv[]) {
 
                 quantum_length = median;
                 active_processes_runtime = temp_array;
-                printf("quantum_length/median: %ld\n", quantum_length);
+                // printf("quantum_length/median: %ld\n", quantum_length);
             }
+        } */
+
+        struct process *current_process = TAILQ_FIRST(&list);
+        printf("Process %ld executes at: %d \n", current_process->pid, current_time);
+        for (int i = 0; i < num_processes_active; i++) {
+            printf("%ld, ", active_processes_runtime[i]);
         }
+        printf("quantum_length: %ld \n", quantum_length);
 
-        current_process = TAILQ_FIRST(&list);
-        // printf("Process %ld executes at: %d \n", current_process->pid, current_time);
-
-        if (current_process->start_execution_time == 0) { //first process
-            current_process->start_execution_time = current_time;
+        if (current_process->started == false) { //first time process
+            current_process->started = true;
+            current_process->ID = num_processes_ran;
+            num_processes_active++;
+            num_processes_ran++;
             current_process->remaining_time = current_process->burst_time;
             current_process->response_time = current_time - current_process->arrival_time;
-            total_response_time += current_time - current_process->arrival_time;
-            // printf("Current total_response_time: %ld \n", total_response_time);
+            total_response_time += current_process->response_time;
+            printf("Process %ld response_time: %ld | Current total_response_time: %ld \n", current_process->pid, current_process->response_time, total_response_time);
         }
 
         int runtime = (current_process->remaining_time > quantum_length)? quantum_length : current_process->remaining_time; //min of quantum and remaining time
-        int after_runtime = current_time + runtime + 1; //CONTEXT SWITCH
+        int after_runtime = current_time + runtime;
 
-        while (current_index < ps.nprocesses && ps.process[current_index].arrival_time <= after_runtime) { //add new processes to end of list
-            TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers); 
-            // printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
+        while (current_index < ps.nprocesses && ps.process[current_index].arrival_time < after_runtime) { //while current task is running put other tasks to queue
+            TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers);
+            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
             current_index++;
         }
 
+        printf("remaining_time: %ld \n", current_process->remaining_time);
         current_process->remaining_time -= runtime;
-        num_processes_ran++;
-        active_processes_runtime[num_processes_ran] = current_process->burst_time - current_process->remaining_time;
+        printf("remaining_time after runtime: %ld \n", current_process->remaining_time);
+        //NEED TO UPDATE ACTIVE PROCESS LIST FOR THE DYNAMIC VERSION
+
         TAILQ_REMOVE(&list, current_process, pointers);
-        current_time += runtime + 1; //CONTEXT SWITCH
 
         if (current_process->remaining_time > 0) { //add process to end if they have time left
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
         } else { //otherwise get total wait time - context switch
-            // printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
-            total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time - 1); //MINUS CONTEXT SWITCH
+            printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
+            total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
         }
+
+        if (TAILQ_EMPTY(&list) && num_processes_ran < ps.nprocesses) { //process that arrive after
+            struct process *next_process = &ps.process[current_index];
+            TAILQ_INSERT_TAIL(&list, next_process, pointers);
+            current_index++;
+            current_time = next_process->arrival_time;
+        }
+
+        if (TAILQ_FIRST(&list) != current_process) 
+            current_time++;
     }
 
     // for (long i = 0; i < ps.nprocesses; i++) {
