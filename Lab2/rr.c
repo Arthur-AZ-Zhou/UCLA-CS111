@@ -271,7 +271,7 @@ int main (int argc, char *argv[]) {
         current_process->remaining_time -= runtime;
         printf("remaining_time after runtime: %ld \n", current_process->remaining_time);
         //NEED TO UPDATE ACTIVE PROCESS LIST FOR THE DYNAMIC VERSION
-        time = after_runtime;
+        current_time = after_runtime;
 
         TAILQ_REMOVE(&list, current_process, pointers);
 
