@@ -238,8 +238,9 @@ int main (int argc, char *argv[]) {
 
                 quantum_length = median;
                 active_processes_runtime = temp_array;
-                printf("quantum_length/median: %ld\n", quantum_length);
             }
+
+            printf("quantum_length/median: %ld\n", quantum_length);
         } 
 
         struct process *current_process = TAILQ_FIRST(&list);
