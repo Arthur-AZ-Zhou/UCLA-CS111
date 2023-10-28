@@ -194,7 +194,7 @@ int main (int argc, char *argv[]) {
 
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
-    while (num_processes_ran < ps.nprocesses) {
+    while (num_processes_ran <= ps.nprocesses) {
         /*if (quantum_dynamic == true) { //HAVEN'T TESTED
             if (quantum_length <= 0) {
                 quantum_length = 1;
