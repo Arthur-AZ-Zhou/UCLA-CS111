@@ -188,7 +188,7 @@ int main (int argc, char *argv[]) {
     int current_index = 1;
     bool quantum_dynamic = ((quantum_length == -1)? true : false);
     if (quantum_dynamic) {
-        printf("WE HAVE DYNAMIC QUANTUM!!!\n");
+        printf("WE HAVE DYNAMIC QUANTUM ON OUR HANDS!!!\n");
     }
     qsort(ps.process, ps.nprocesses, sizeof(struct process), compare_arrival_time); 
 
@@ -216,7 +216,7 @@ int main (int argc, char *argv[]) {
                         int first_half_index = second_half_index - 1;
                         double decimal_median = ((double) (active_processes_runtime[first_half_index] + active_processes_runtime[second_half_index])) / 2;
 
-                        if (decimal_median % 1.0 != 0.0) {
+                        if (remainder(decimal_median, 1.0) != 0.0) {
                             int lower = decimal_median;
                             int higher = decimal_median + 1;
 
@@ -238,7 +238,7 @@ int main (int argc, char *argv[]) {
 
                 quantum_length = median;
                 active_processes_runtime = temp_array;
-                // printf("quantum_length/median: %ld\n", quantum_length);
+                printf("quantum_length/median: %ld\n", quantum_length);
             }
         } 
 
