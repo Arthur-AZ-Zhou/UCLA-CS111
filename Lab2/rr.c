@@ -184,6 +184,7 @@ int main (int argc, char *argv[]) {
     /* Your code here */
     int num_processes_active = 0;
     int num_processes_ran = 0;
+    int num_processes_done = 0;
     int current_index = 1;
     bool quantum_dynamic = ((quantum_length == -1)? true : false);
     qsort(ps.process, ps.nprocesses, sizeof(struct process), compare_arrival_time); 
@@ -194,7 +195,7 @@ int main (int argc, char *argv[]) {
 
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
-    while (num_processes_ran <= ps.nprocesses) {
+    while (num_processes_done != ps.nprocesses) {
         /*if (quantum_dynamic == true) { //HAVEN'T TESTED
             if (quantum_length <= 0) {
                 quantum_length = 1;
@@ -281,6 +282,7 @@ int main (int argc, char *argv[]) {
         } else { //otherwise get total wait time - context switch
             printf("Process %ld DONE, wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
+            num_processes_done++;
         }
 
         if (TAILQ_EMPTY(&list) && num_processes_ran < ps.nprocesses) { //process that arrive after
