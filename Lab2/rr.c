@@ -195,11 +195,11 @@ int main (int argc, char *argv[]) {
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
     while (!TAILQ_EMPTY(&list)) {
-        if (quantum_dynamic == true) {
+        if (quantum_dynamic == true) { //HAVEN'T TESTED
             if (quantum_length <= 0) {
                 quantum_length = 1;
             } else { //sort array and find middle
-                long* temp_array = (long*) malloc(ps.nprocesses, * sizeof(long)); //save original array
+                long* temp_array = (long*) malloc(ps.nprocesses * sizeof(long)); //save original array
                 for (int i = 0; i < num_processes_ran; i++) //copy original array
                     temp_array[i] = active_processes_runtime[i];
                 
@@ -209,10 +209,10 @@ int main (int argc, char *argv[]) {
                 if (num_processes_ran % 2 == 0) { //cancer scenario
                     if (num_processes_ran != 0) {
                         int second_half_index = num_processes_ran / 2;
-                        int first_half_index = second_half - 1;
+                        int first_half_index = second_half_index - 1;
                         double decimal_median = ((double) (active_processes_runtime[first_half_index] + active_processes_runtime[second_half_index])) / 2;
 
-                        if (decimal_median % 1 != 0.0) {
+                        if (decimal_median % 1.0 != 0.0) {
                             int lower = decimal_median;
                             int higher = decimal_median + 1;
 
