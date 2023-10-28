@@ -282,6 +282,7 @@ int main (int argc, char *argv[]) {
         } else { //otherwise get total wait time - context switch
             printf("Process %ld DONE, wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
+            num_processes_active--;
             num_processes_done++;
         }
 
@@ -293,7 +294,7 @@ int main (int argc, char *argv[]) {
             current_time = next_process->arrival_time;
         }
 
-        if (TAILQ_FIRST(&list) != current_process) 
+        if (TAILQ_FIRST(&list) != current_process && num_processes_done != ps.nprocesses) 
             current_time++;
         
         printf(">>>current_time<<< %d\n", current_time);
