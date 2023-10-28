@@ -261,8 +261,9 @@ int main (int argc, char *argv[]) {
 
         while (current_index < ps.nprocesses && ps.process[current_index].arrival_time < after_runtime) { //while current task is running put other tasks to queue
             TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers);
-            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, current_time);
+            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
             current_index++;
+            current_time = next_process->arrival_time;
         }
 
         printf("remaining_time: %ld \n", current_process->remaining_time);
@@ -275,13 +276,14 @@ int main (int argc, char *argv[]) {
         if (current_process->remaining_time > 0) { //add process to end if they have time left
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
         } else { //otherwise get total wait time - context switch
-            printf("Process %ld wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
+            printf("Process %ld DONE, wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
         }
 
         if (TAILQ_EMPTY(&list) && num_processes_ran < ps.nprocesses) { //process that arrive after
             struct process *next_process = &ps.process[current_index];
             TAILQ_INSERT_TAIL(&list, next_process, pointers);
+            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
             current_index++;
             current_time = next_process->arrival_time;
         }
