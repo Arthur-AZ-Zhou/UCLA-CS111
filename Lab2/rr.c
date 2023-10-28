@@ -240,10 +240,10 @@ int main (int argc, char *argv[]) {
 
         struct process *current_process = TAILQ_FIRST(&list);
         printf("Process %ld executes at: %d \n", current_process->pid, current_time);
-        for (int i = 0; i < num_processes_active; i++) {
-            printf("%ld, ", active_processes_runtime[i]);
-        }
-        printf("quantum_length: %ld \n", quantum_length);
+        // for (int i = 0; i < num_processes_active; i++) {
+        //     printf("%ld, ", active_processes_runtime[i]);
+        // }
+        // printf("quantum_length: %ld \n", quantum_length);
 
         if (current_process->started == false) { //first time process
             current_process->started = true;
