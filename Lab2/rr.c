@@ -18,10 +18,11 @@ struct process {
     TAILQ_ENTRY (process) pointers;
 
     /* Additional fields here */
+    int ID; //no guarantee PID is in chronological order or won't overflow array
+    bool started;
     long wait_time;
     long response_time;
     long remaining_time;
-    long start_execution_time;
     /* End of "Additional fields here" */
 };
 
@@ -141,8 +142,21 @@ int compare(const void * e1, const void * e2) { //sort array compare function
     long s = *((long*) e2);
 
     if (f > s) 
-        return  1;
+        return 1;
     if (f < s) 
+        return -1;
+
+    return 0;
+}
+
+int compare_arrival_time(const void *e1, const void *e2) { //compare function for stable sort list array
+    struct process f = *((struct process*) e1);
+    struct process s = *((struct process*) e2);
+
+    if (f.arrival_time > s.arrival_time)
+        return 1;
+
+    if (f.arrival_time < s.arrival_time)
         return -1;
 
     return 0;
@@ -168,17 +182,15 @@ int main (int argc, char *argv[]) {
     long total_response_time = 0;
 
     /* Your code here */
+    int num_processes_ran = 0;
+    int current_index = 1;
+    bool quantum_dynamic = ((quantum_length == -1)? true : false);
+    qsort(ps.process, ps.nprocesses, sizeof(struct process), compare_arrival_time); 
+
     struct process *first = &ps.process[0];
     struct process *current_process = first;
     int current_time = first->arrival_time;
-    int current_index = 1;
-    int num_processes_ran = 0;
-
-    bool quantum_dynamic = false;
-    long* runtime_array = (long*) malloc(10000 * sizeof(long));
-
-    if (quantum_length == -1) 
-        quantum_dynamic = true;
+    long* active_processes_runtime = (long*) malloc(ps.nprocesses * sizeof(long)); //array of active processes to sort
 
     TAILQ_INSERT_TAIL(&list, first, pointers); //insert first process into end of linked list
 
@@ -187,9 +199,42 @@ int main (int argc, char *argv[]) {
             if (quantum_length <= 0) {
                 quantum_length = 1;
             } else { //sort array and find middle
-                qsort(runtime_array, num_processes_ran, sizeof(long), compare); 
-                quantum_length = runtime_array[num_processes_ran / 2];
-                // printf("Quantum length: %ld \n", quantum_length);
+                long* temp_array = (long*) malloc(ps.nprocesses, * sizeof(long)); //save original array
+                for (int i = 0; i < num_processes_ran; i++) //copy original array
+                    temp_array[i] = active_processes_runtime[i];
+                
+                qsort(active_processes_runtime, num_processes_ran, sizeof(long), compare); 
+                int median = 0; //placeholder
+                
+                if (num_processes_ran % 2 == 0) { //cancer scenario
+                    if (num_processes_ran != 0) {
+                        int second_half_index = num_processes_ran / 2;
+                        int first_half_index = second_half - 1;
+                        double decimal_median = ((double) (active_processes_runtime[first_half_index] + active_processes_runtime[second_half_index])) / 2;
+
+                        if (decimal_median % 1 != 0.0) {
+                            int lower = decimal_median;
+                            int higher = decimal_median + 1;
+
+                            if (lower % 2 == 0) { //floor is even
+                                median = lower;
+                            } else {
+                                median = higher;
+                            }
+                        } else {
+                            median = decimal_median;
+                        }
+                    }
+                } else { //odd # of processes
+                    median = active_processes_runtime[num_processes_ran / 2];
+                }
+
+                if (median == 0)
+                    median = 1;
+
+                quantum_length = median;
+                active_processes_runtime = temp_array;
+                printf("quantum_length/median: %ld\n", quantum_length);
             }
         }
 
@@ -215,7 +260,7 @@ int main (int argc, char *argv[]) {
 
         current_process->remaining_time -= runtime;
         num_processes_ran++;
-        runtime_array[num_processes_ran] = current_process->burst_time - current_process->remaining_time;
+        active_processes_runtime[num_processes_ran] = current_process->burst_time - current_process->remaining_time;
         TAILQ_REMOVE(&list, current_process, pointers);
         current_time += runtime + 1; //CONTEXT SWITCH
 
