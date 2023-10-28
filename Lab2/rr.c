@@ -294,8 +294,10 @@ int main (int argc, char *argv[]) {
             current_time = next_process->arrival_time;
         }
 
-        if (TAILQ_FIRST(&list) != current_process && num_processes_done != ps.nprocesses) 
+        if (TAILQ_FIRST(&list) != current_process && num_processes_done != ps.nprocesses) {
+            printf("CONTEXT SWITCH\n");
             current_time++;
+        }
         
         printf(">>>current_time<<< %d\n", current_time);
     }
