@@ -216,7 +216,7 @@ int main (int argc, char *argv[]) {
                         int first_half_index = second_half_index - 1;
                         double decimal_median = ((double) (active_processes_runtime[first_half_index] + active_processes_runtime[second_half_index])) / 2;
 
-                        if (round(decimal_median) != decimal_median) { //not whole number
+                        if (decimal_median - ((int) decimal_median) != 0) { //not whole number
                             int lower = decimal_median;
                             int higher = decimal_median + 1;
 
