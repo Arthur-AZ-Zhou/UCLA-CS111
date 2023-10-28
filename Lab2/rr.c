@@ -260,8 +260,9 @@ int main (int argc, char *argv[]) {
         int after_runtime = current_time + runtime;
 
         while (current_index < ps.nprocesses && ps.process[current_index].arrival_time < after_runtime) { //while current task is running put other tasks to queue
-            TAILQ_INSERT_TAIL(&list, &ps.process[current_index], pointers);
-            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
+            struct process *next_process = &ps.process[current_index];
+            TAILQ_INSERT_TAIL(&list, next_process, pointers);
+            printf("Process %ld arrived at: %ld \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
             current_index++;
             current_time = next_process->arrival_time;
         }
@@ -283,7 +284,7 @@ int main (int argc, char *argv[]) {
         if (TAILQ_EMPTY(&list) && num_processes_ran < ps.nprocesses) { //process that arrive after
             struct process *next_process = &ps.process[current_index];
             TAILQ_INSERT_TAIL(&list, next_process, pointers);
-            printf("Process %ld arrived at: %d \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
+            printf("Process %ld arrived at: %ld \n", (&ps.process[current_index])->pid, (&ps.process[current_index])->arrival_time);
             current_index++;
             current_time = next_process->arrival_time;
         }
