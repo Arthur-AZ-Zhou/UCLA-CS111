@@ -204,10 +204,10 @@ int main (int argc, char *argv[]) {
                 quantum_length = 1;
             } else { //sort array and find middle
                 long* temp_array = (long*) malloc(ps.nprocesses * sizeof(long)); //save original array
-                for (int i = 0; i < num_processes_active; i++) //copy original array
+                for (int i = 0; i < num_processes_ran; i++) //copy original array
                     temp_array[i] = active_processes_runtime[i];
                 
-                qsort(active_processes_runtime, num_processes_active, sizeof(long), compare); 
+                qsort(active_processes_runtime, num_processes_ran, sizeof(long), compare); 
                 int median = 0; //placeholder
                 
                 if (num_processes_active % 2 == 0) { //cancer scenario
@@ -287,6 +287,7 @@ int main (int argc, char *argv[]) {
         } else { //otherwise get total wait time - context switch
             printf("Process %ld DONE, wait_time: %ld \n", current_process->pid, current_time - current_process->arrival_time - current_process->burst_time);
             total_wait_time += (current_time - current_process->burst_time - current_process->arrival_time);
+            active_processes_runtime[current_process->ID] = LONG_MAX; //make it to maximum
             num_processes_active--;
             num_processes_done++;
         }
