@@ -240,7 +240,7 @@ int main (int argc, char *argv[]) {
                 active_processes_runtime = temp_array;
             }
 
-            printf("quantum_length/median: %ld\n", quantum_length);
+            printf("quantum_length: %ld\n", quantum_length);
         } 
 
         struct process *current_process = TAILQ_FIRST(&list);
@@ -275,7 +275,7 @@ int main (int argc, char *argv[]) {
         printf("remaining_time: %ld \n", current_process->remaining_time);
         current_process->remaining_time -= runtime;
         printf("remaining_time after runtime: %ld \n", current_process->remaining_time);
-        //NEED TO UPDATE ACTIVE PROCESS LIST FOR THE DYNAMIC VERSION
+        active_processes_runtime[current_process->ID] += runtime;
         current_time = after_runtime;
 
         TAILQ_REMOVE(&list, current_process, pointers);
