@@ -7,24 +7,26 @@
 
 #include <pthread.h>
 
-struct list_entry {
+struct list_entry { 
 	const char *key;
 	uint32_t value;
-	SLIST_ENTRY(list_entry) pointers;
+	SLIST_ENTRY(list_entry) pointers; //same key list entry
 };
 
-SLIST_HEAD(list_head, list_entry);
+SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value's entry in hash table
 
-struct hash_table_entry {
+struct hash_table_entry { //defines hash table entry for linked list
 	struct list_head list_head;
+	static pthread_mutex_t hash_mutex_v1;
 };
 
-struct hash_table_v1 {
+pthread_mutex_t struct hash_table_entry::hash_mutex_v1 = PTHREAD_MUTEX_INITIALIZER;
+
+struct hash_table_v1 { //defines the actual hash table w/ array of entries
 	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
 };
 
-struct hash_table_v1 *hash_table_v1_create()
-{
+struct hash_table_v1 *hash_table_v1_create() { 
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
 	assert(hash_table != NULL);
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
@@ -34,47 +36,39 @@ struct hash_table_v1 *hash_table_v1_create()
 	return hash_table;
 }
 
-static struct hash_table_entry *get_hash_table_entry(struct hash_table_v1 *hash_table,
-                                                     const char *key)
-{
+static struct hash_table_entry *get_hash_table_entry(struct hash_table_v1 *hash_table, const char *key) { //returns the linked list
 	assert(key != NULL);
 	uint32_t index = bernstein_hash(key) % HASH_TABLE_CAPACITY;
 	struct hash_table_entry *entry = &hash_table->entries[index];
 	return entry;
 }
 
-static struct list_entry *get_list_entry(struct hash_table_v1 *hash_table,
-                                         const char *key,
-                                         struct list_head *list_head)
-{
+static struct list_entry *get_list_entry(struct hash_table_v1 *hash_table, const char *key, struct list_head *list_head) { //returns entry for given key and list head
 	assert(key != NULL);
 
 	struct list_entry *entry = NULL;
 	
 	SLIST_FOREACH(entry, list_head, pointers) {
-	  if (strcmp(entry->key, key) == 0) {
-	    return entry;
-	  }
+		if (strcmp(entry->key, key) == 0) {
+			return entry;
+		}
 	}
 	return NULL;
 }
 
-bool hash_table_v1_contains(struct hash_table_v1 *hash_table,
-                            const char *key)
-{
+bool hash_table_v1_contains(struct hash_table_v1 *hash_table, const char *key) {
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
 	return list_entry != NULL;
 }
 
-void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
-                             const char *key,
-                             uint32_t value)
-{
+void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, uint32_t value) {
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
+
+	pthread_mutex_lock(&hash_table_entry->hash_mutex_v1);
 
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
@@ -86,11 +80,11 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	list_entry->key = key;
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
+
+	pthread_mutex_unlock(&hash_table_entry->hash_mutex_v1);
 }
 
-uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table,
-                                 const char *key)
-{
+uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table, const char *key) {
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
@@ -98,8 +92,7 @@ uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table,
 	return list_entry->value;
 }
 
-void hash_table_v1_destroy(struct hash_table_v1 *hash_table)
-{
+void hash_table_v1_destroy(struct hash_table_v1 *hash_table) {
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
 		struct hash_table_entry *entry = &hash_table->entries[i];
 		struct list_head *list_head = &entry->list_head;
