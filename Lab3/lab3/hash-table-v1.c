@@ -14,7 +14,6 @@ struct list_entry {
 };
 
 static pthread_mutex_t hash_mutex_v1;
-pthread_mutex_init(&hash_mutex_v1, NULL);
 SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value's entry in hash table
 
 struct hash_table_entry { //defines hash table entry for linked list
