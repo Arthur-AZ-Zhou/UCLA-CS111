@@ -17,14 +17,14 @@ SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value'
 
 struct hash_table_entry { //defines hash table entry for linked list
 	struct list_head list_head;
+};
+
+struct hash_table_v1 { //defines the actual hash table w/ array of entries
+	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
 	static pthread_mutex_t hash_mutex_v1;
 };
 
 pthread_mutex_t struct hash_table_entry::hash_mutex_v1 = PTHREAD_MUTEX_INITIALIZER;
-
-struct hash_table_v1 { //defines the actual hash table w/ array of entries
-	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
-};
 
 struct hash_table_v1 *hash_table_v1_create() { 
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
