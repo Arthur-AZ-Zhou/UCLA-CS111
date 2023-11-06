@@ -14,6 +14,7 @@ struct list_entry {
 };
 
 static pthread_mutex_t hash_mutex_v1;
+pthread_mutex_init(&hash_mutex_v1, NULL);
 SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value's entry in hash table
 
 struct hash_table_entry { //defines hash table entry for linked list
@@ -22,10 +23,7 @@ struct hash_table_entry { //defines hash table entry for linked list
 
 struct hash_table_v1 { //defines the actual hash table w/ array of entries
 	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
-	
 };
-
-pthread_mutex_t struct hash_table_entry::hash_mutex_v1 = PTHREAD_MUTEX_INITIALIZER;
 
 struct hash_table_v1 *hash_table_v1_create() { 
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
@@ -69,7 +67,7 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, 
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
 
-	pthread_mutex_lock(&hash_table_entry->hash_mutex_v1);
+	pthread_mutex_lock(hash_mutex_v1);
 
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
@@ -82,7 +80,7 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, 
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
 
-	pthread_mutex_unlock(&hash_table_entry->hash_mutex_v1);
+	pthread_mutex_unlock(hash_mutex_v1);
 }
 
 uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table, const char *key) {
