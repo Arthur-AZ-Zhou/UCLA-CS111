@@ -12,11 +12,11 @@ make to utilize the makefile.
 ```
 
 ## First Implementation
-In the `hash_table_v1_add_entry` function, I added "static pthread_mutex_t hash_mutex_v1;" to the line after list_entry struct because we are only allotted one lock and established a lock at the start of the hash_table_v1_add_entry() function. I then put an unlock at the end of the function AND an unlock call in the case of an existing list entry so we don't have an unlockable hashtable entry. This 
+In the `hash_table_v1_add_entry` function, I added "static pthread_mutex_t hash_mutex_v1;" to the line after list_entry struct because we are only allotted one lock and established a lock at the start of the hash_table_v1_add_entry() function. I then put an unlock at the end of the function AND an unlock call in the case of an existing list entry so we don't have an unlockable hashtable entry. This netted us 0 missing elements but a runtime almost twice the speed of the base case.
 
 ### Performance
 ```shell
-TODO how to run and results
+./hash-table-tester -t 8 -s 50000 runs a test. We can see it test the base case, v1, and v2
 ```
 Version 1 is a little slower/faster than the base version. As TODO
 

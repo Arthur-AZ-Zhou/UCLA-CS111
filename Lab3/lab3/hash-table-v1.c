@@ -30,7 +30,6 @@ struct hash_table_v1 { //defines the actual hash table w/ array of entries
 };
 
 struct hash_table_v1 *hash_table_v1_create() { 
-	static pthread_mutex_t hash_mutex_v1;
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
 	assert(hash_table != NULL);
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
