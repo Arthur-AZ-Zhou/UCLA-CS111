@@ -71,6 +71,7 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
 		list_entry->value = value;
+		pthread_mutex_unlock(&hash_table_v1->hash_mutex_v1); //NEED AN UNLOCK HERE OR ELSE YOU ARE SCREWED
 		return;
 	}
 

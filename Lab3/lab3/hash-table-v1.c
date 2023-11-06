@@ -10,6 +10,7 @@
 //TASKS:
 //1. INIT/DESTROY THE MUTEX
 //2. MAKE V2 MORE EFFICIENT AND TEST IT PROPERLY
+//3. ERROR HANDLING ON MUTEX CALLS
 
 struct list_entry { 
 	const char *key;
@@ -17,7 +18,7 @@ struct list_entry {
 	SLIST_ENTRY(list_entry) pointers; //same key list entry
 };
 
-// static pthread_mutex_t hash_mutex_v1;
+static pthread_mutex_t hash_mutex_v1;
 SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value's entry in hash table
 
 struct hash_table_entry { //defines hash table entry for linked list
@@ -67,7 +68,7 @@ bool hash_table_v1_contains(struct hash_table_v1 *hash_table, const char *key) {
 }
 
 void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, uint32_t value) {
-	pthread_mutex_lock(&hash_table_v1->hash_mutex_v1);
+	pthread_mutex_lock(&hash_mutex_v1);
 
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
@@ -76,6 +77,7 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, 
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
 		list_entry->value = value;
+		pthread_mutex_unlock(&hash_mutex_v1); //NEED UNLOCK HERE OR ELSE YOU ARE SCREWED
 		return;
 	}
 
@@ -84,7 +86,7 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table, const char *key, 
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
 
-	pthread_mutex_unlock(&hash_table_v1->hash_mutex_v1);
+	pthread_mutex_unlock(&hash_mutex_v1);
 }
 
 uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table, const char *key) {

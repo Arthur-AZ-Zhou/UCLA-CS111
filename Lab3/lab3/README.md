@@ -12,7 +12,7 @@ make to utilize the makefile.
 ```
 
 ## First Implementation
-In the `hash_table_v1_add_entry` function, I added "static pthread_mutex_t hash_mutex_v1;" to the line after list_entry struct because we are only allotted one lock and 
+In the `hash_table_v1_add_entry` function, I added "static pthread_mutex_t hash_mutex_v1;" to the line after list_entry struct because we are only allotted one lock and established a lock at the start of the hash_table_v1_add_entry() function. I then put an unlock at the end of the function AND an unlock call in the case of an existing list entry so we don't have an unlockable hashtable entry. This 
 
 ### Performance
 ```shell
