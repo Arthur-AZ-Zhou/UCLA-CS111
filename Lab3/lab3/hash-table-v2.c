@@ -31,7 +31,12 @@ struct hash_table_v2 *hash_table_v2_create() {
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
 		struct hash_table_entry *entry = &hash_table->entries[i];
 		SLIST_INIT(&entry->list_head);
-		pthread_mutex_init(&(entry->hash_mutex_v2), NULL);
+
+		int result = pthread_mutex_init(&(entry->hash_mutex_v2), NULL);
+		if (result != 0) {
+			perror("Mutex initialization failed");
+			exit(errno);
+		}
 	}
 
 	return hash_table;
@@ -69,12 +74,22 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
 
-	pthread_mutex_lock(&(hash_table_entry->hash_mutex_v2));
+	int result = pthread_mutex_lock(&(hash_table_entry->hash_mutex_v2));
+	if (result != 0) {
+		perror("Mutex lock failed");
+		exit(errno);
+	}
 
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
 		list_entry->value = value;
-		pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2)); //NEED AN UNLOCK HERE OR ELSE YOU ARE SCREWED
+
+		result = pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2)); //NEED AN UNLOCK HERE OR ELSE YOU ARE SCREWED
+		if (result != 0) {
+			perror("Mutex unlock failed");
+			exit(errno);
+		}
+
 		return;
 	}
 
@@ -83,7 +98,11 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
 
-	pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2));
+	result = pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2));
+	if (result != 0) {
+		perror("Mutex unlock failed");
+		exit(errno);
+	}
 }
 
 uint32_t hash_table_v2_get_value(struct hash_table_v2 *hash_table, const char *key) {
@@ -105,7 +124,11 @@ void hash_table_v2_destroy(struct hash_table_v2 *hash_table) {
 			free(list_entry);
 		}
 
-		pthread_mutex_destroy(&(entry->hash_mutex_v2));
+		int result = pthread_mutex_destroy(&(entry->hash_mutex_v2));
+		if (result != 0) {
+			perror("Mutex destruction failed");
+			exit(errno);
+		}
 	}
 
 	free(hash_table);
