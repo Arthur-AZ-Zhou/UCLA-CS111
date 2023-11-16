@@ -27,7 +27,7 @@ struct hash_table_entry { //defines hash table entry for linked list
 
 struct hash_table_v1 { //defines the actual hash table w/ array of entries
 	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
-	static pthread_mutex_t hash_mutex_v1;
+	pthread_mutex_t hash_mutex_v1;
 };
 
 struct hash_table_v1 *hash_table_v1_create() { 
