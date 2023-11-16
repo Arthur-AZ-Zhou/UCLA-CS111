@@ -13,7 +13,7 @@ struct list_entry {
 	SLIST_ENTRY(list_entry) pointers;
 };
 
-static pthread_mutex_t hash_mutex_v2;
+// static pthread_mutex_t hash_mutex_v2;
 SLIST_HEAD(list_head, list_entry);
 
 struct hash_table_entry {
