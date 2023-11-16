@@ -35,7 +35,7 @@ struct hash_table_v2 *hash_table_v2_create() {
 
 		int result = pthread_mutex_init(&(entry->hash_mutex_v2), NULL);
 		if (result != 0) {
-			perror("Mutex initialization failed");
+			// perror("Mutex initialization failed");
 			exit(errno);
 		}
 	}
@@ -77,7 +77,7 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 
 	int result = pthread_mutex_lock(&(hash_table_entry->hash_mutex_v2));
 	if (result != 0) {
-		perror("Mutex lock failed");
+		// perror("Mutex lock failed");
 		exit(errno);
 	}
 
@@ -87,7 +87,7 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 
 		result = pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2)); //NEED AN UNLOCK HERE OR ELSE YOU ARE SCREWED
 		if (result != 0) {
-			perror("Mutex unlock failed");
+			// perror("Mutex unlock failed");
 			exit(errno);
 		}
 
@@ -101,7 +101,7 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table, const char *key, 
 
 	result = pthread_mutex_unlock(&(hash_table_entry->hash_mutex_v2));
 	if (result != 0) {
-		perror("Mutex unlock failed");
+		// perror("Mutex unlock failed");
 		exit(errno);
 	}
 }
@@ -127,7 +127,7 @@ void hash_table_v2_destroy(struct hash_table_v2 *hash_table) {
 
 		int result = pthread_mutex_destroy(&(entry->hash_mutex_v2));
 		if (result != 0) {
-			perror("Mutex destruction failed");
+			// perror("Mutex destruction failed");
 			exit(errno);
 		}
 	}
