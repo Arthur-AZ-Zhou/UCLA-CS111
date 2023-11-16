@@ -18,7 +18,7 @@ struct list_entry {
 	SLIST_ENTRY(list_entry) pointers; //same key list entry
 };
 
-static pthread_mutex_t hash_mutex_v1;
+// static pthread_mutex_t hash_mutex_v1;
 SLIST_HEAD(list_head, list_entry); //defines head of linked list for each value's entry in hash table
 
 struct hash_table_entry { //defines hash table entry for linked list
@@ -27,6 +27,7 @@ struct hash_table_entry { //defines hash table entry for linked list
 
 struct hash_table_v1 { //defines the actual hash table w/ array of entries
 	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
+	static pthread_mutex_t hash_mutex_v1;
 };
 
 struct hash_table_v1 *hash_table_v1_create() { 
@@ -36,6 +37,9 @@ struct hash_table_v1 *hash_table_v1_create() {
 		struct hash_table_entry *entry = &hash_table->entries[i];
 		SLIST_INIT(&entry->list_head);
 	}
+
+	pthread_mutex_init(&(hash_table->hash_mutex_v1), NULL);
+
 	return hash_table;
 }
 
