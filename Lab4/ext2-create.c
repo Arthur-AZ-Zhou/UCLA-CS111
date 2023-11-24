@@ -109,8 +109,7 @@ struct ext2_superblock {
 	u32 s_reserved[229];
 };
 
-struct ext2_block_group_descriptor
-{
+struct ext2_block_group_descriptor {
 	u32 bg_block_bitmap;
 	u32 bg_inode_bitmap;
 	u32 bg_inode_table;
@@ -204,15 +203,15 @@ void write_superblock(int fd) {
 	superblock.s_free_blocks_count = -1;
 	superblock.s_free_inodes_count = -1;
 	superblock.s_first_data_block = -1; /* First Data Block */
-	superblock.s_log_block_size = 0;					/* 1024 */
-	superblock.s_log_frag_size = 0;						/* 1024 */
+	superblock.s_log_block_size = 1024;					/* 1024 */
+	superblock.s_log_frag_size = 1024;						/* 1024 */
 	superblock.s_blocks_per_group = -1;
 	superblock.s_frags_per_group = -1;
 	superblock.s_inodes_per_group = -1;
 	superblock.s_mtime = 0;				/* Mount time */
 	superblock.s_wtime = current_time;	/* Write time */
 	superblock.s_mnt_count         = 0; /* Number of times mounted so far */
-	superblock.s_max_mnt_count     = 0; /* Make this unlimited */
+	superblock.s_max_mnt_count     = INT_MAX; /* Make this unlimited */
 	superblock.s_magic = -1; /* ext2 Signature */
 	superblock.s_state             = 0; /* File system is clean */
 	superblock.s_errors            = 0; /* Ignore the error (continue on) */
@@ -274,43 +273,36 @@ void write_block_group_descriptor_table(int fd) {
 	}
 }
 
-void write_block_bitmap(int fd)
-{
+void write_block_bitmap(int fd) {
 	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO), SEEK_SET);
-	if (off == -1)
-	{
+	if (off == -1) {
 		errno_exit("lseek");
 	}
 
 	// TODO It's all yours
 	u8 map_value[BLOCK_SIZE];
 
-	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
-	{
+	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
 		errno_exit("write");
 	}
 }
 
-void write_inode_bitmap(int fd)
-{
+void write_inode_bitmap(int fd) {
 	off_t off = lseek(fd, BLOCK_OFFSET(INODE_BITMAP_BLOCKNO), SEEK_SET);
-	if (off == -1)
-	{
+	if (off == -1) {
 		errno_exit("lseek");
 	}
 
 	// TODO It's all yours
 	u8 map_value[BLOCK_SIZE];
 
-	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
-	{
+	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
 		errno_exit("write");
 	}
 }
 
 void write_inode(int fd, u32 index, struct ext2_inode *inode) {
-	off_t off = BLOCK_OFFSET(INODE_TABLE_BLOCKNO)
-	            + (index - 1) * sizeof(struct ext2_inode);
+	off_t off = BLOCK_OFFSET(INODE_TABLE_BLOCKNO) + (index - 1) * sizeof(struct ext2_inode);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
@@ -350,8 +342,7 @@ void write_inode_table(int fd) {
 	// TODO finish the inode entries for the other files
 }
 
-void write_root_dir_block(int fd)
-{
+void write_root_dir_block(int fd) {
 	// TODO It's all yours
 }
 
@@ -381,8 +372,7 @@ void write_lost_and_found_dir_block(int fd) {
 	dir_entry_write(fill_entry, fd);
 }
 
-void write_hello_world_file_block(int fd)
-{
+void write_hello_world_file_block(int fd) {
 	// TODO It's all yours
 }
 
