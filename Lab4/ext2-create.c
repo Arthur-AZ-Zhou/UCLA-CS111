@@ -203,7 +203,7 @@ void write_superblock(int fd) {
 	superblock.s_free_blocks_count = -1;
 	superblock.s_free_inodes_count = -1;
 	superblock.s_first_data_block = -1; /* First Data Block */
-	superblock.s_log_block_size = 1024;					/* 1024 */
+	superblock.s_log_block_size = 1024;					/* 1024 */ //IF BLOCK_SIZE GIVES CORRUPT SET EQUAL TO 0
 	superblock.s_log_frag_size = 1024;						/* 1024 */
 	superblock.s_blocks_per_group = -1;
 	superblock.s_frags_per_group = -1;
