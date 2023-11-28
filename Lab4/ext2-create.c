@@ -211,7 +211,7 @@ void write_superblock(int fd) {
 	superblock.s_mtime = 0;				/* Mount time */
 	superblock.s_wtime = current_time;	/* Write time */
 	superblock.s_mnt_count         = 0; /* Number of times mounted so far */
-	superblock.s_max_mnt_count     = 2147483647; /* Make this unlimited */
+	superblock.s_max_mnt_count     = 0; /* Make this unlimited */
 	superblock.s_magic = -1; /* ext2 Signature */
 	superblock.s_state             = 0; /* File system is clean */
 	superblock.s_errors            = 0; /* Ignore the error (continue on) */
