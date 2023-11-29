@@ -312,12 +312,6 @@ void write_inode_bitmap(int fd) {
 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
 		errno_exit("write");
 	}
-
-	// u8 map_value[BLOCK_SIZE];
-
-	// if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
-	// 	errno_exit("write");
-	// }
 }
 
 void write_inode(int fd, u32 index, struct ext2_inode *inode) {
@@ -494,6 +488,7 @@ void write_hello_world_file_block(int fd) {
 	}
 
 	uint32_t buf[3] = {0x6C6C6548, 0x6f77206f, 0x0a646c72};
+	//                   l  l e H    o _ w  o    _ d  l r 
 	
 	write(fd, buf, 12);
 }
