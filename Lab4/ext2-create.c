@@ -206,8 +206,8 @@ void write_superblock(int fd) {
 	superblock.s_first_data_block = SUPERBLOCK_BLOCKNO; /* First Data Block */
 	superblock.s_log_block_size = 0;					/* 1024 */
 	superblock.s_log_frag_size = 0;						/* 1024 */
-	superblock.s_blocks_per_group = BLOCK_SIZE * 8;
-	superblock.s_frags_per_group = BLOCK_SIZE * 8;
+	superblock.s_blocks_per_group = BLOCK_SIZE * 8; //TRY NUM_BLOCKS TOO===============
+	superblock.s_frags_per_group = BLOCK_SIZE * 8;  //TRY NUM_BLOCKS TOO===============
 	superblock.s_inodes_per_group = NUM_INODES;
 	superblock.s_mtime = 0;				/* Mount time */
 	superblock.s_wtime = current_time;	/* Write time */
@@ -324,8 +324,7 @@ void write_inode_bitmap(int fd) {
 }
 
 void write_inode(int fd, u32 index, struct ext2_inode *inode) {
-	off_t off = BLOCK_OFFSET(INODE_TABLE_BLOCKNO)
-	            + (index - 1) * sizeof(struct ext2_inode);
+	off_t off = BLOCK_OFFSET(INODE_TABLE_BLOCKNO) + (index - 1) * sizeof(struct ext2_inode);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
@@ -363,6 +362,65 @@ void write_inode_table(int fd) {
 
 	// TODO It's all yours
 	// TODO finish the inode entries for the other files
+
+	struct ext2_inode helloWorld_ino = {0};
+	helloWorld_ino.i_mode = EXT2_S_IFREG   //if regular file
+							| EXT2_S_IRUSR //user can read
+							| EXT2_S_IWUSR //user can write
+							| EXT2_S_IRGRP //group can read
+							| EXT2_S_IROTH;//others can read
+	helloWorld_ino.i_uid = 1000;
+	helloWorld_ino.i_size = 12;
+	helloWorld_ino.i_atime = current_time;
+	helloWorld_ino.i_ctime = current_time;
+	helloWorld_ino.i_mtime = current_time;
+	helloWorld_ino.i_dtime = 0;
+	helloWorld_ino.i_gid = 1000;
+	helloWorld_ino.i_links_count = 1; //link to itself
+	helloWorld_ino.i_blocks = 2;
+	helloWorld_ino.i_block[0] = HELLO_WORLD_FILE_BLOCKNO;
+	write_inode(fd, HELLO_WORLD_INO, &helloWorld_ino);
+
+	struct ext2_inode hello_ino = {0};
+	hello_ino.i_mode = EXT2_S_IFLNK   //if link
+					   | EXT2_S_IRUSR //user can read
+					   | EXT2_S_IWUSR //user can write
+					   | EXT2_S_IRGRP //group can read
+					   | EXT2_S_IROTH;//others can read
+	hello_ino.i_uid = 1000;
+	hello_ino.i_size = 11;
+	hello_ino.i_atime = current_time;
+	hello_ino.i_ctime = current_time;
+	hello_ino.i_mtime = current_time;
+	hello_ino.i_dtime = 0;
+	hello_ino.i_gid = 1000;
+	hello_ino.i_links_count = 1;
+	hello_ino.i_blocks = 0;
+	hello_ino.i_block[0] = 0x6c6c6568;
+	hello_ino.i_block[1] = 0x6F772D6F;
+	hello_ino.i_block[2] = 0x00646C72;
+	write_inode(fd,HELLO_INO, &hello_ino);
+
+	struct ext2_inode root_dir_ino = {0};
+	root_dir_ino.i_mode = EXT2_S_IFDIR   //if directory
+						  | EXT2_S_IRUSR //user can read
+	                	  | EXT2_S_IWUSR //user can write
+	                      | EXT2_S_IXUSR //user can execute
+    					  | EXT2_S_IRGRP //group can read
+	                      | EXT2_S_IXGRP //group can execute
+	                      | EXT2_S_IROTH //others can read
+	                      | EXT2_S_IXOTH;//others can execute
+	// root_dir_ino.i_uid = 1000;
+	root_dir_ino.i_size = 1024;
+	root_dir_ino.i_atime = current_time;
+	root_dir_ino.i_ctime = current_time;
+	root_dir_ino.i_mtime = current_time;
+	root_dir_ino.i_dtime = 0;
+	root_dir_ino.i_gid = 0;
+	root_dir_ino.i_links_count = 3;
+	root_dir_ino.i_blocks = 2;
+	root_dir_ino.i_block[0] = ROOT_DIR_BLOCKNO;
+	write_inode(fd, EXT2_ROOT_INO, &root_dir_ino);
 }
 
 void write_root_dir_block(int fd)
