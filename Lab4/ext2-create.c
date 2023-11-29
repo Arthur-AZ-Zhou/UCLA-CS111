@@ -274,21 +274,29 @@ void write_block_group_descriptor_table(int fd) {
 	}
 }
 
-void write_block_bitmap(int fd)
-{
+void write_block_bitmap(int fd) {
 	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO), SEEK_SET);
-	if (off == -1)
-	{
-		errno_exit("lseek");
+	if (off == -1) {
+		errno_exit("lseek failed");
 	}
 
 	// TODO It's all yours
-	u8 map_value[BLOCK_SIZE];
 
-	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
-	{
-		errno_exit("write");
+	uint32_t buf[256] = {0};
+	
+	for (int i = 256; i > 31; i--) {
+		buf[i] = 0xFFFFFFFF;
 	}
+	buf[0] = 0x7FFFFF;
+	buf[31] = 0x80000000;
+
+	write(fd, buf, 1024);
+
+// 	u8 map_value[BLOCK_SIZE];
+
+// 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
+// 		errno_exit("write");
+// 	}
 }
 
 void write_inode_bitmap(int fd)
