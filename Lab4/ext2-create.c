@@ -281,7 +281,6 @@ void write_block_bitmap(int fd) {
 	}
 
 	// TODO It's all yours
-
 	uint32_t map_value[BLOCK_SIZE] = {0};
 	
 	for (int i = BLOCK_SIZE; i > 31; i--) {
@@ -294,14 +293,6 @@ void write_block_bitmap(int fd) {
 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
 		errno_exit("write");
 	}
-	
-	// write(fd, map_value, 1024);
-
-// 	u8 map_value[BLOCK_SIZE];
-
-// 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
-// 		errno_exit("write");
-// 	}
 }
 
 void write_inode_bitmap(int fd) {
@@ -311,15 +302,16 @@ void write_inode_bitmap(int fd) {
 	}
 
 	// TODO It's all yours
+	uint32_t map_value[BLOCK_SIZE] = {0};
 
-	uint32_t bitBuf[256] = {0};
-
-	for (int i = 256; i > 3; i--) {
-		bitBuf[i] = 0xFFFFFFFF;
+	for (int i = BLOCK_SIZE; i > 3; i--) {
+		map_value[i] = 0xFFFFFFFF;
 	}
+	map_value[0] = 0x1FFF;
 
-	bitBuf[0] = 0x1FFF;
-	write(fd, bitBuf, 1024);
+	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
+		errno_exit("write");
+	}
 
 	// u8 map_value[BLOCK_SIZE];
 
