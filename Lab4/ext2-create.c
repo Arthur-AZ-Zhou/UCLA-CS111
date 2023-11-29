@@ -266,7 +266,7 @@ void write_block_group_descriptor_table(int fd) {
 	block_group_descriptor.bg_inode_table = INODE_TABLE_BLOCKNO;
 	block_group_descriptor.bg_free_blocks_count = NUM_FREE_BLOCKS;
 	block_group_descriptor.bg_free_inodes_count = NUM_FREE_INODES;
-	block_group_descriptor.bg_used_dirs_count = 2;
+	block_group_descriptor.bg_used_dirs_count = 2; //2 used directories currently
 
 	ssize_t size = sizeof(block_group_descriptor);
 	if (write(fd, &block_group_descriptor, size) != size) {
@@ -282,15 +282,20 @@ void write_block_bitmap(int fd) {
 
 	// TODO It's all yours
 
-	uint32_t buf[256] = {0};
+	uint32_t map_value[BLOCK_SIZE] = {0};
 	
-	for (int i = 256; i > 31; i--) {
-		buf[i] = 0xFFFFFFFF;
+	for (int i = BLOCK_SIZE; i > 31; i--) {
+		map_value[i] = 0xFFFFFFFF;
 	}
 
-	buf[0] = 0x7FFFFF;
-	buf[31] = 0x80000000;
-	write(fd, buf, 1024);
+	map_value[0] = 0x7FFFFF;
+	map_value[31] = 0x80000000;
+
+	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE) {
+		errno_exit("write");
+	}
+	
+	// write(fd, map_value, 1024);
 
 // 	u8 map_value[BLOCK_SIZE];
 
