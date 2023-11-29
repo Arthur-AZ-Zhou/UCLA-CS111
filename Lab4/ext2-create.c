@@ -363,6 +363,27 @@ void write_inode_table(int fd) {
 	// TODO It's all yours
 	// TODO finish the inode entries for the other files
 
+	struct ext2_inode root_dir_ino = {0};
+	root_dir_ino.i_mode = EXT2_S_IFDIR   //if directory
+						  | EXT2_S_IRUSR //user can read
+	                	  | EXT2_S_IWUSR //user can write
+	                      | EXT2_S_IXUSR //user can execute
+    					  | EXT2_S_IRGRP //group can read
+	                      | EXT2_S_IXGRP //group can execute
+	                      | EXT2_S_IROTH //others can read
+	                      | EXT2_S_IXOTH;//others can execute
+	// root_dir_ino.i_uid = 1000;
+	root_dir_ino.i_size = 1024;
+	root_dir_ino.i_atime = current_time;
+	root_dir_ino.i_ctime = current_time;
+	root_dir_ino.i_mtime = current_time;
+	root_dir_ino.i_dtime = 0;
+	root_dir_ino.i_gid = 0;
+	root_dir_ino.i_links_count = 3;
+	root_dir_ino.i_blocks = 2;
+	root_dir_ino.i_block[0] = ROOT_DIR_BLOCKNO;
+	write_inode(fd, EXT2_ROOT_INO, &root_dir_ino);
+
 	struct ext2_inode helloWorld_ino = {0};
 	helloWorld_ino.i_mode = EXT2_S_IFREG   //if regular file
 							| EXT2_S_IRUSR //user can read
@@ -400,31 +421,9 @@ void write_inode_table(int fd) {
 	hello_ino.i_block[1] = 0x6F772D6F;
 	hello_ino.i_block[2] = 0x00646C72;
 	write_inode(fd,HELLO_INO, &hello_ino);
-
-	struct ext2_inode root_dir_ino = {0};
-	root_dir_ino.i_mode = EXT2_S_IFDIR   //if directory
-						  | EXT2_S_IRUSR //user can read
-	                	  | EXT2_S_IWUSR //user can write
-	                      | EXT2_S_IXUSR //user can execute
-    					  | EXT2_S_IRGRP //group can read
-	                      | EXT2_S_IXGRP //group can execute
-	                      | EXT2_S_IROTH //others can read
-	                      | EXT2_S_IXOTH;//others can execute
-	// root_dir_ino.i_uid = 1000;
-	root_dir_ino.i_size = 1024;
-	root_dir_ino.i_atime = current_time;
-	root_dir_ino.i_ctime = current_time;
-	root_dir_ino.i_mtime = current_time;
-	root_dir_ino.i_dtime = 0;
-	root_dir_ino.i_gid = 0;
-	root_dir_ino.i_links_count = 3;
-	root_dir_ino.i_blocks = 2;
-	root_dir_ino.i_block[0] = ROOT_DIR_BLOCKNO;
-	write_inode(fd, EXT2_ROOT_INO, &root_dir_ino);
 }
 
-void write_root_dir_block(int fd)
-{
+void write_root_dir_block(int fd) {
 	// TODO It's all yours
 }
 
