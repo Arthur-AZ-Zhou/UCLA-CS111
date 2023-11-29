@@ -277,7 +277,7 @@ void write_block_group_descriptor_table(int fd) {
 void write_block_bitmap(int fd) {
 	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO), SEEK_SET);
 	if (off == -1) {
-		errno_exit("lseek failed");
+		errno_exit("lseek");
 	}
 
 	// TODO It's all yours
@@ -302,7 +302,7 @@ void write_block_bitmap(int fd) {
 void write_inode_bitmap(int fd) {
 	off_t off = lseek(fd, BLOCK_OFFSET(INODE_BITMAP_BLOCKNO), SEEK_SET);
 	if (off == -1) {
-		errno_exit("lseek failed");
+		errno_exit("lseek");
 	}
 
 	// TODO It's all yours
@@ -402,29 +402,65 @@ void write_inode_table(int fd) {
 	helloWorld_ino.i_block[0] = HELLO_WORLD_FILE_BLOCKNO;
 	write_inode(fd, HELLO_WORLD_INO, &helloWorld_ino);
 
-	struct ext2_inode hello_ino = {0};
-	hello_ino.i_mode = EXT2_S_IFLNK   //if link
+	struct ext2_inode helloSymLink_ino = {0};
+	helloSymLink_ino.i_mode = EXT2_S_IFLNK   //if link
 					   | EXT2_S_IRUSR //user can read
 					   | EXT2_S_IWUSR //user can write
 					   | EXT2_S_IRGRP //group can read
 					   | EXT2_S_IROTH;//others can read
-	hello_ino.i_uid = 1000;
-	hello_ino.i_size = 11;
-	hello_ino.i_atime = current_time;
-	hello_ino.i_ctime = current_time;
-	hello_ino.i_mtime = current_time;
-	hello_ino.i_dtime = 0;
-	hello_ino.i_gid = 1000;
-	hello_ino.i_links_count = 1;
-	hello_ino.i_blocks = 0;
-	hello_ino.i_block[0] = 0x6c6c6568;
-	hello_ino.i_block[1] = 0x6F772D6F;
-	hello_ino.i_block[2] = 0x00646C72;
-	write_inode(fd,HELLO_INO, &hello_ino);
+	helloSymLink_ino.i_uid = 1000;
+	helloSymLink_ino.i_size = 11;
+	helloSymLink_ino.i_atime = current_time;
+	helloSymLink_ino.i_ctime = current_time;
+	helloSymLink_ino.i_mtime = current_time;
+	helloSymLink_ino.i_dtime = 0;
+	helloSymLink_ino.i_gid = 1000;
+	helloSymLink_ino.i_links_count = 1;
+	helloSymLink_ino.i_blocks = 0;
+	helloSymLink_ino.i_block[0] = 0x6c6c6568;
+	helloSymLink_ino.i_block[1] = 0x6F772D6F;
+	helloSymLink_ino.i_block[2] = 0x00646C72;
+	write_inode(fd,HELLO_INO, &helloSymLink_ino);
 }
 
 void write_root_dir_block(int fd) {
 	// TODO It's all yours
+	off_t off = lseek(fd, BLOCK_OFFSET(ROOT_DIR_BLOCKNO), SEEK_SET);
+	if (off == -1) {
+		errno_exit("lseek");
+	}
+
+	ssize_t bytes_remaining = BLOCK_SIZE;
+
+	struct ext2_dir_entry current_entry = {0};
+	dir_entry_set(current_entry, EXT2_ROOT_INO, ".");
+	// dir_entry_set(current_entry, LOST_AND_FOUND_INO, ".");
+	dir_entry_write(current_entry, fd);
+	bytes_remaining -= current_entry.rec_len;
+
+	struct ext2_dir_entry parent_entry = {0};
+	dir_entry_set(parent_entry, EXT2_ROOT_INO, "..");
+	dir_entry_write(parent_entry, fd);
+	bytes_remaining -= parent_entry.rec_len;
+
+	struct ext2_dir_entry helloWorld_entry = {0};
+	dir_entry_set(helloWorld_entry, HELLO_WORLD_INO, "hello-world"); //filename
+	dir_entry_write(helloWorld_entry, fd);
+	bytes_remaining -= helloWorld_entry.rec_len;
+
+	struct ext2_dir_entry helloSymLink_entry = {0};
+	dir_entry_set(helloSymLink_entry, HELLO_INO, "hello"); //symlink name
+	dir_entry_write(helloSymLink_entry, fd);
+	bytes_remaining -= helloSymLink_entry.rec_len;
+
+	struct ext2_dir_entry lostAndFound_entry = {0};
+	dir_entry_set(lostAndFound_entry, LOST_AND_FOUND_INO, "lost+found");
+	dir_entry_write(lostAndFound_entry, fd);
+	bytes_remaining -= lostAndFound_entry.rec_len;
+
+	struct ext2_dir_entry fill_entry = {0}; //for rest of the bytes_remaining unused
+	fill_entry.rec_len = bytes_remaining;
+	dir_entry_write(fill_entry, fd);
 }
 
 void write_lost_and_found_dir_block(int fd) {
@@ -453,8 +489,7 @@ void write_lost_and_found_dir_block(int fd) {
 	dir_entry_write(fill_entry, fd);
 }
 
-void write_hello_world_file_block(int fd)
-{
+void write_hello_world_file_block(int fd) {
 	// TODO It's all yours
 }
 
